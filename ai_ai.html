@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 文字指令小達人：學會與 AI 溝通</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts: Noto Sans TC 繁體中文字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- 引入 FontAwesome 圖示庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    colors: {
+                        cream: '#FFFDF7',
+                        softBlue: '#E0F2FE',
+                        softAmber: '#FEF3C7',
+                        softEmerald: '#D1FAE5',
+                        softPurple: '#F3E8FF',
+                        brandBlue: '#0284C7',
+                        brandAmber: '#D97706',
+                        brandEmerald: '#059669',
+                        brandPurple: '#7C3AED',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FFFDF7;
+            background-image: radial-gradient(#E2E8F0 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #1E293B;
+        }
+        /* 自訂平滑過渡與微動畫 */
+        .tab-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.2), 0 4px 6px -2px rgba(2, 132, 199, 0.1);
+        }
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop {
+            animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        /* 隱藏滾動條但保持可滾動 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-sky-200 selection:text-sky-900">
+
+    <!-- 頂部導航與英雄橫幅 -->
+    <header class="bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-lg rounded-b-[2rem] pb-6 pt-5 px-4 sm:px-8 relative overflow-hidden">
+        <!-- 裝飾背景圓圈 -->
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+        <div class="absolute top-12 right-10 w-32 h-32 bg-amber-300/20 rounded-full blur-xl pointer-events-none"></div>
+
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+            <!-- 左側標題與可愛機器人 SVG -->
+            <div class="flex items-center gap-4 text-center md:text-left">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-3xl p-2 shadow-md flex-shrink-0 animate-float flex items-center justify-center border-4 border-amber-300">
+                    <!-- 可愛小機器人 SVG -->
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <!-- 天線 -->
+                        <line x1="50" y1="8" x2="50" y2="22" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/>
+                        <circle cx="50" cy="8" r="6" fill="#EF4444"/>
+                        <!-- 頭部 -->
+                        <rect x="20" y="22" width="60" height="48" rx="14" fill="#38BDF8" stroke="#0284C7" stroke-width="4"/>
+                        <!-- 耳朵 -->
+                        <rect x="10" y="36" width="10" height="20" rx="5" fill="#FBBF24"/>
+                        <rect x="80" y="36" width="10" height="20" rx="5" fill="#FBBF24"/>
+                        <!-- 螢幕臉部 -->
+                        <rect x="28" y="30" width="44" height="32" rx="8" fill="#0F172A"/>
+                        <!-- 發光眼睛 -->
+                        <circle cx="40" cy="44" r="5" fill="#34D399"/>
+                        <circle cx="60" cy="44" r="5" fill="#34D399"/>
+                        <circle cx="41.5" cy="42.5" r="1.5" fill="#FFFFFF"/>
+                        <circle cx="61.5" cy="42.5" r="1.5" fill="#FFFFFF"/>
+                        <!-- 微笑嘴巴 -->
+                        <path d="M 42 53 Q 50 59 58 53" stroke="#FBBF24" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <!-- 身體底座 -->
+                        <path d="M 32 74 L 68 74 L 74 92 L 26 92 Z" fill="#6366F1" stroke="#4338CA" stroke-width="3" stroke-linejoin="round"/>
+                        <circle cx="50" cy="83" r="4" fill="#FDE047"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs sm:text-sm font-bold text-amber-200 mb-1">
+                        <i class="fa-solid fa-sparkles"></i> 香港小學 AI 素養互動課堂
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight drop-shadow-sm">
+                        AI 文字指令小達人
+                    </h1>
+                    <p class="text-sky-100 text-sm sm:text-base mt-1 font-medium">
+                        學會寫出清晰具體的指令（Prompt），成為指揮 AI 的小專家！
+                    </p>
+                </div>
+            </div>
+
+            <!-- 右側小貼士徽章 -->
+            <div class="hidden lg:flex items-center gap-3 bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl px-4 py-3 text-sm max-w-xs">
+                <div class="w-10 h-10 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center font-black text-lg flex-shrink-0">
+                    💡
+                </div>
+                <p class="leading-snug text-white/95">
+                    <strong>溝通小秘訣：</strong>AI 就像一位聰明但需要清晰指示的小助手，你說得越具體，它幫得越好！
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 三大核心分頁導航列 (適合平板與手機點擊的大按鈕) -->
+    <nav class="max-w-5xl mx-auto w-full px-4 -mt-5 relative z-20">
+        <div class="bg-white p-2 rounded-3xl shadow-md border border-slate-200/80 grid grid-cols-3 gap-2 sm:gap-3">
+            <button onclick="switchTab('guide')" id="tab-guide" class="tab-btn active flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2.5 py-3 px-2 sm:px-5 rounded-2xl font-bold text-sm sm:text-base md:text-lg bg-sky-500 text-white">
+                <i class="fa-solid fa-book-open text-lg sm:text-xl"></i>
+                <span>1. 指令秘笈</span>
+                <span class="hidden md:inline text-xs bg-white/20 px-2 py-0.5 rounded-full font-normal">教學區</span>
+            </button>
+            <button onclick="switchTab('clinic')" id="tab-clinic" class="tab-btn flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2.5 py-3 px-2 sm:px-5 rounded-2xl font-bold text-sm sm:text-base md:text-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-stethoscope text-lg sm:text-xl text-emerald-500"></i>
+                <span>2. 指令診斷室</span>
+                <span class="hidden md:inline text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-normal">練習區</span>
+            </button>
+            <button onclick="switchTab('generator')" id="tab-generator" class="tab-btn flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2.5 py-3 px-2 sm:px-5 rounded-2xl font-bold text-sm sm:text-base md:text-lg text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg sm:text-xl text-purple-500"></i>
+                <span>3. 魔法生成器</span>
+                <span class="hidden md:inline text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-normal">工具區</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主要內容區塊 -->
+    <main class="flex-grow max-w-5xl mx-auto w-full px-4 py-6 sm:py-8">
+
+        <!-- ==========================================
+             分頁 1：指令秘笈（教學區）
+             ========================================== -->
+        <section id="section-guide" class="space-y-8 animate-pop">
+            <!-- 標題說明 -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-sky-100">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="w-10 h-10 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-crown"></i>
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800">寫出好指令的「黃金四要素」</h2>
+                </div>
+                <p class="text-slate-600 text-base sm:text-lg leading-relaxed mb-6">
+                    什麼是<strong>「文字指令（Prompt）」</strong>？就是我們輸入給 AI 的問題或任務要求。只要在指令中加入以下四個要素，就能讓 AI 變身成你的超級學習小助手！
+                </p>
+
+                <!-- 黃金四要素卡片網格 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <!-- 要素 1：AI 身份 -->
+                    <div class="card-hover bg-gradient-to-br from-sky-50 to-blue-50 border-2 border-sky-200 rounded-3xl p-5 sm:p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center gap-2 bg-sky-500 text-white font-bold px-3.5 py-1 rounded-full text-sm">
+                                ① AI 身份 (Role)
+                            </span>
+                            <span class="text-3xl">🎭</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-sky-900 mb-2">希望 AI 扮演什麼專家？</h3>
+                        <p class="text-slate-600 text-sm sm:text-base mb-3">
+                            為 AI 設定一個專業身份，它的語氣和知識深度就會更貼合你的需要！
+                        </p>
+                        <div class="bg-white/80 rounded-2xl p-3.5 border border-sky-200/80 text-sm text-sky-900">
+                            <span class="font-bold text-sky-600"><i class="fa-solid fa-quote-left mr-1"></i>例子：</span>
+                            「你是一位幽默風趣的科學館導賞員……」
+                        </div>
+                    </div>
+
+                    <!-- 要素 2：任務目標 -->
+                    <div class="card-hover bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-3xl p-5 sm:p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center gap-2 bg-amber-500 text-white font-bold px-3.5 py-1 rounded-full text-sm">
+                                ② 任務目標 (Task)
+                            </span>
+                            <span class="text-3xl">🎯</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-amber-900 mb-2">希望 AI 幫你完成什麼事？</h3>
+                        <p class="text-slate-600 text-sm sm:text-base mb-3">
+                            用清晰的動詞說出具體任務，例如：解釋、列出、比較、構思大綱等。
+                        </p>
+                        <div class="bg-white/80 rounded-2xl p-3.5 border border-amber-200/80 text-sm text-amber-950">
+                            <span class="font-bold text-amber-600"><i class="fa-solid fa-quote-left mr-1"></i>例子：</span>
+                            「請為我解釋什麼是『光合作用』……」
+                        </div>
+                    </div>
+
+                    <!-- 要素 3：目標對象 -->
+                    <div class="card-hover bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-3xl p-5 sm:p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center gap-2 bg-emerald-500 text-white font-bold px-3.5 py-1 rounded-full text-sm">
+                                ③ 目標對象 (Audience)
+                            </span>
+                            <span class="text-3xl">👦👧</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-emerald-900 mb-2">這份內容是寫給誰看的？</h3>
+                        <p class="text-slate-600 text-sm sm:text-base mb-3">
+                            告訴 AI 讀者的年級或背景，AI 才會使用淺白易懂、適合你們的詞語。
+                        </p>
+                        <div class="bg-white/80 rounded-2xl p-3.5 border border-emerald-200/80 text-sm text-emerald-950">
+                            <span class="font-bold text-emerald-600"><i class="fa-solid fa-quote-left mr-1"></i>例子：</span>
+                            「對象是香港小學五年級的學生……」
+                        </div>
+                    </div>
+
+                    <!-- 要素 4：格式與限制 -->
+                    <div class="card-hover bg-gradient-to-br from-purple-50 to-fuchsia-50 border-2 border-purple-200 rounded-3xl p-5 sm:p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center gap-2 bg-purple-500 text-white font-bold px-3.5 py-1 rounded-full text-sm">
+                                ④ 格式與限制 (Format)
+                            </span>
+                            <span class="text-3xl">📏</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-purple-900 mb-2">字數、排版與特別要求？</h3>
+                        <p class="text-slate-600 text-sm sm:text-base mb-3">
+                            規定字數上限、分點列出或舉生活例子，避免 AI 長篇大論令人難以閱讀。
+                        </p>
+                        <div class="bg-white/80 rounded-2xl p-3.5 border border-purple-200/80 text-sm text-purple-950">
+                            <span class="font-bold text-purple-600"><i class="fa-solid fa-quote-left mr-1"></i>例子：</span>
+                            「請用 150 字以內、分 3 點列出，並舉一個香港常見植物的例子。」
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模糊指令 vs 具體指令 對比切換器 -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-amber-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-black text-slate-800">超級比一比：模糊指令 vs 具體指令</h2>
+                            <p class="text-sm text-slate-500">點擊切換不同學科情境，看看加入四要素後的神奇變化！</p>
+                        </div>
+                    </div>
+
+                    <!-- 情境切換按鈕 -->
+                    <div class="flex flex-wrap gap-2" id="example-switcher">
+                        <button onclick="selectExample('chinese')" data-ex="chinese" class="ex-btn px-4 py-2.5 rounded-2xl font-bold text-sm bg-amber-500 text-white shadow-sm transition">
+                            ✍️ 中文寫作
+                        </button>
+                        <button onclick="selectExample('science')" data-ex="science" class="ex-btn px-4 py-2.5 rounded-2xl font-bold text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                            🔬 常識探究
+                        </button>
+                        <button onclick="selectExample('coding')" data-ex="coding" class="ex-btn px-4 py-2.5 rounded-2xl font-bold text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                            💻 創意編程
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 對比卡片區 -->
+                <div id="example-display" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 動態由 JS 填充 -->
+                </div>
+
+                <!-- 底部引導按鈕 -->
+                <div class="mt-8 text-center">
+                    <button onclick="switchTab('clinic')" class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-base sm:text-lg px-8 py-4 rounded-2xl shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
+                        <span>學會秘笈了！前往「指令診斷室」挑戰</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             分頁 2：指令診斷室（互動練習區）
+             ========================================== -->
+        <section id="section-clinic" class="hidden space-y-6 animate-pop">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-emerald-200">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800">指令診斷室：測試你的指令有多強！</h2>
+                </div>
+                <p class="text-slate-600 text-sm sm:text-base mb-6">
+                    選擇一個任務關卡，試著運用<strong>「黃金四要素」</strong>寫出你的指令，AI 導師會為你打分並給予改善建議！
+                </p>
+
+                <!-- 關卡選擇按鈕群 -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-6" id="mission-selector">
+                    <button onclick="selectMission(0)" data-mission="0" class="mission-btn p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-bold text-left transition flex flex-col gap-1">
+                        <span class="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full w-fit">關卡 1</span>
+                        <span class="text-sm sm:text-base">📝 構思作文大綱</span>
+                    </button>
+                    <button onclick="selectMission(1)" data-mission="1" class="mission-btn p-3.5 rounded-2xl border-2 border-slate-200 bg-white text-slate-600 hover:border-emerald-300 font-bold text-left transition flex flex-col gap-1">
+                        <span class="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full w-fit">關卡 2</span>
+                        <span class="text-sm sm:text-base">🌈 解釋科學原理</span>
+                    </button>
+                    <button onclick="selectMission(2)" data-mission="2" class="mission-btn p-3.5 rounded-2xl border-2 border-slate-200 bg-white text-slate-600 hover:border-emerald-300 font-bold text-left transition flex flex-col gap-1">
+                        <span class="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full w-fit">關卡 3</span>
+                        <span class="text-sm sm:text-base">♻️ 環保海報標語</span>
+                    </button>
+                    <button onclick="selectMission(3)" data-mission="3" class="mission-btn p-3.5 rounded-2xl border-2 border-slate-200 bg-white text-slate-600 hover:border-emerald-300 font-bold text-left transition flex flex-col gap-1">
+                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full w-fit">自由挑戰</span>
+                        <span class="text-sm sm:text-base">🚀 自訂任何任務</span>
+                    </button>
+                </div>
+
+                <!-- 當前任務說明卡 -->
+                <div id="mission-brief" class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 mb-6 flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg flex-shrink-0 mt-0.5">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                    </div>
+                    <div>
+                        <h3 id="mission-title" class="font-bold text-emerald-950 text-base sm:text-lg">關卡 1：請 AI 幫忙構思作文大綱</h3>
+                        <p id="mission-desc" class="text-emerald-800 text-sm sm:text-base mt-1">
+                            情境：下星期中文課要寫一篇題為《一次難忘的香港離島之旅》的記敘文，你想請 AI 幫你構思段落大綱。試著寫出包含「身份、目標、對象、格式」的指令吧！
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 學生輸入區 -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label for="student-prompt-input" class="font-bold text-slate-700 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-emerald-600"></i> 在下方輸入你的文字指令：
+                        </label>
+                        <button onclick="fillWeakExample()" class="text-xs sm:text-sm text-slate-500 hover:text-emerald-600 underline font-medium">
+                            試試輸入一個「太簡短的指令」看看結果
+                        </button>
+                    </div>
+                    <textarea id="student-prompt-input" rows="4" class="w-full rounded-2xl border-2 border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 p-4 text-base text-slate-800 placeholder-slate-400 transition outline-none" placeholder="例如：你是一位資深小學中文老師，請為我構思一篇關於……的作文大綱，對象是小學五年級學生，請分四段列出……"></textarea>
+                    
+                    <!-- 四要素即時小提示膠囊 -->
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 pt-1">
+                        <span class="font-bold text-slate-600">檢查清單：</span>
+                        <span class="bg-sky-50 text-sky-700 border border-sky-200 px-2.5 py-1 rounded-full">① AI 身份</span>
+                        <span class="bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full">② 任務目標</span>
+                        <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">③ 目標對象</span>
+                        <span class="bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-1 rounded-full">④ 格式與限制</span>
+                    </div>
+
+                    <div class="pt-3 flex flex-wrap gap-3">
+                        <button id="diagnose-btn" onclick="diagnosePrompt()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-base sm:text-lg px-8 py-3.5 rounded-2xl shadow-md transition">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                            <span>診斷我的指令</span>
+                        </button>
+                        <button onclick="clearClinic()" class="px-5 py-3.5 rounded-2xl border-2 border-slate-200 text-slate-600 hover:bg-slate-100 font-bold text-sm sm:text-base transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> 清空重寫
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 診斷報告結果區塊 (預設隱藏) -->
+            <div id="diagnosis-result" class="hidden space-y-6 animate-pop">
+                <!-- 載入中狀態 -->
+                <div id="diagnosis-loading" class="bg-white rounded-3xl p-8 text-center border border-emerald-100 shadow-sm">
+                    <div class="inline-block w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-3"></div>
+                    <p class="text-lg font-bold text-slate-700">AI 導師正在仔細閱讀你的指令並模擬測試中……</p>
+                    <p class="text-sm text-slate-500 mt-1">正在檢查「黃金四要素」是否齊全！</p>
+                </div>
+
+                <!-- 實際診斷內容 -->
+                <div id="diagnosis-content" class="hidden space-y-6">
+                    <!-- 分數與四要素檢測卡 -->
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-2 border-emerald-200">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-100">
+                            <div class="flex items-center gap-4">
+                                <div id="score-badge" class="w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex flex-col items-center justify-center shadow-lg flex-shrink-0">
+                                    <span id="score-number" class="text-3xl font-black leading-none">85</span>
+                                    <span class="text-xs font-bold mt-1 opacity-90">分 / 100</span>
+                                </div>
+                                <div>
+                                    <div id="star-rating" class="text-amber-400 text-xl sm:text-2xl mb-1 tracking-wider">
+                                        ★★★★☆
+                                    </div>
+                                    <h3 id="score-title" class="text-xl font-black text-slate-800">表現很棒！指令相當清晰！</h3>
+                                    <p id="score-encouragement" class="text-slate-600 text-sm sm:text-base mt-1"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 四要素檢核狀態列 -->
+                        <div class="py-5">
+                            <h4 class="font-bold text-slate-700 text-sm mb-3">🔍 黃金四要素檢測報告：</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="elements-checklist">
+                                <!-- JS 動態生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 優點與改善建議 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4">
+                                <h4 class="font-bold text-emerald-900 flex items-center gap-2 mb-2">
+                                    <i class="fa-solid fa-thumbs-up text-emerald-600"></i> 你做得好的地方
+                                </h4>
+                                <p id="diag-strengths" class="text-sm sm:text-base text-emerald-950 leading-relaxed"></p>
+                            </div>
+                            <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4">
+                                <h4 class="font-bold text-amber-900 flex items-center gap-2 mb-2">
+                                    <i class="fa-solid fa-lightbulb text-amber-600"></i> 升級小建議
+                                </h4>
+                                <p id="diag-improvements" class="text-sm sm:text-base text-amber-950 leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 雙欄對照：AI 實際回覆預覽 vs 參考滿分指令 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 左側：AI 收到你指令後的模擬回覆 -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-sky-200 flex flex-col">
+                            <div class="flex items-center gap-2.5 mb-3">
+                                <span class="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-robot"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">AI 收到你指令後的模擬回覆</h4>
+                                    <p class="text-xs text-slate-500">看看 AI 能否準確明白你的意思？</p>
+                                </div>
+                            </div>
+                            <div id="ai-simulated-reply" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm sm:text-base text-slate-700 leading-relaxed whitespace-pre-line flex-grow">
+                            </div>
+                        </div>
+
+                        <!-- 右側：參考滿分指令 -->
+                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl p-6 shadow-sm border border-purple-200 flex flex-col">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-8 h-8 rounded-xl bg-purple-500 text-white flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-award"></i>
+                                    </span>
+                                    <div>
+                                        <h4 class="font-bold text-purple-950">參考滿分指令示範</h4>
+                                        <p class="text-xs text-purple-700">集齊四要素的超級指令！</p>
+                                    </div>
+                                </div>
+                                <button onclick="copyReferencePrompt()" class="text-xs bg-white hover:bg-purple-100 text-purple-700 font-bold px-3 py-1.5 rounded-xl border border-purple-200 transition">
+                                    <i class="fa-regular fa-copy mr-1"></i>複製參考
+                                </button>
+                            </div>
+                            <div id="reference-perfect-prompt" class="bg-white/90 border border-purple-200 rounded-2xl p-4 text-sm sm:text-base text-slate-800 leading-relaxed flex-grow">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             分頁 3：魔法指令生成器（實用工具區）
+             ========================================== -->
+        <section id="section-generator" class="hidden space-y-6 animate-pop">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-purple-200">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-hat-wizard"></i>
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800">魔法指令生成器：一鍵組裝超級指令</h2>
+                </div>
+                <p class="text-slate-600 text-sm sm:text-base mb-6">
+                    只要填寫或點選下方的魔法積木，系統就會自動幫你組裝出結構完整、AI 最容易明白的專業指令！
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                    <!-- 左側：表單設定區 (佔 7 欄) -->
+                    <div class="lg:col-span-7 space-y-5">
+                        <!-- 1. 任務目標 (必填) -->
+                        <div class="bg-amber-50/60 border border-amber-200 rounded-2xl p-4">
+                            <label for="gen-task" class="block font-bold text-amber-950 text-base mb-1.5">
+                                <span class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full mr-1">必填</span>
+                                ② 任務目標：你想 AI 幫你做什麼？
+                            </label>
+                            <input type="text" id="gen-task" class="w-full rounded-xl border-2 border-amber-200 focus:border-amber-500 bg-white px-4 py-2.5 text-base outline-none transition" placeholder="例如：寫一篇關於香港郊野公園的記敘文大綱">
+                            <!-- 快捷靈感標籤 -->
+                            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+                                <span class="text-xs font-bold text-amber-800">✨ 靈感快選：</span>
+                                <button type="button" onclick="setGenInput('gen-task', '寫一篇關於《香港郊野公園秋遊》的記敘文四段大綱')" class="text-xs bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-full transition">郊野公園作文大綱</button>
+                                <button type="button" onclick="setGenInput('gen-task', '解釋為什麼天空是藍色的科學原理')" class="text-xs bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-full transition">解釋科學原理</button>
+                                <button type="button" onclick="setGenInput('gen-task', '設計 5 個適合高小學生的英文單字記憶小遊戲')" class="text-xs bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-full transition">英文單字遊戲</button>
+                                <button type="button" onclick="setGenInput('gen-task', '提供 Scratch 貓咪避開障礙物小遊戲的程式邏輯步驟')" class="text-xs bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-full transition">Scratch 編程步驟</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. AI 扮演的身份 -->
+                        <div class="bg-sky-50/60 border border-sky-200 rounded-2xl p-4">
+                            <label for="gen-role" class="block font-bold text-sky-950 text-base mb-1.5">
+                                ① AI 扮演的身份（選填）
+                            </label>
+                            <input type="text" id="gen-role" class="w-full rounded-xl border-2 border-sky-200 focus:border-sky-500 bg-white px-4 py-2.5 text-base outline-none transition" placeholder="輸入或點選下方預設身份……">
+                            <div class="mt-2.5 flex flex-wrap gap-1.5">
+                                <button type="button" onclick="setGenInput('gen-role', '資深香港小學中文老師')" class="text-xs bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 px-2.5 py-1 rounded-full transition">👩‍🏫 資深小學中文老師</button>
+                                <button type="button" onclick="setGenInput('gen-role', '幽默風趣的科普博士')" class="text-xs bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 px-2.5 py-1 rounded-full transition">🔬 科普博士</button>
+                                <button type="button" onclick="setGenInput('gen-role', '充滿想像力的創意故事大王')" class="text-xs bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 px-2.5 py-1 rounded-full transition">📖 創意故事大王</button>
+                                <button type="button" onclick="setGenInput('gen-role', '耐心的 Scratch 編程小導師')" class="text-xs bg-white hover:bg-sky-100 text-sky-800 border border-sky-300 px-2.5 py-1 rounded-full transition">💻 編程小導師</button>
+                            </div>
+                        </div>
+
+                        <!-- 3. 目標對象 & 語氣風格 (雙欄) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-emerald-50/60 border border-emerald-200 rounded-2xl p-4">
+                                <label for="gen-audience" class="block font-bold text-emerald-950 text-sm sm:text-base mb-1.5">
+                                    ③ 目標對象
+                                </label>
+                                <select id="gen-audience" class="w-full rounded-xl border-2 border-emerald-200 focus:border-emerald-500 bg-white px-3 py-2.5 text-sm sm:text-base outline-none">
+                                    <option value="香港小學四年級至六年級（高小）學生" selected>小四至小六（高小學生）</option>
+                                    <option value="香港小學一年級至三年級（初小）學生">小一至小三（初小學生）</option>
+                                    <option value="全校同學與老師（早會分享用）">全校同學與老師</option>
+                                    <option value="家長與小朋友（親子閱讀用）">老師與家長</option>
+                                </select>
+                            </div>
+
+                            <div class="bg-indigo-50/60 border border-indigo-200 rounded-2xl p-4">
+                                <label for="gen-tone" class="block font-bold text-indigo-950 text-sm sm:text-base mb-1.5">
+                                    🎨 語氣風格
+                                </label>
+                                <select id="gen-tone" class="w-full rounded-xl border-2 border-indigo-200 focus:border-indigo-500 bg-white px-3 py-2.5 text-sm sm:text-base outline-none">
+                                    <option value="親切友善、充滿鼓勵性" selected>親切鼓勵（最適合學習）</option>
+                                    <option value="幽默風趣、生動活潑">幽默風趣（有趣不沉悶）</option>
+                                    <option value="條理分明、清晰專業">嚴謹專業（適合報告）</option>
+                                    <option value="充滿好奇心與啟發性">啟發思考（引導提問）</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 4. 輸出格式與特別要求 -->
+                        <div class="bg-purple-50/60 border border-purple-200 rounded-2xl p-4 space-y-3">
+                            <div>
+                                <label class="block font-bold text-purple-950 text-sm sm:text-base mb-2">
+                                    ④ 輸出格式（可點選）
+                                </label>
+                                <div class="flex flex-wrap gap-2" id="format-options">
+                                    <button type="button" onclick="toggleFormat(this, '分點清晰列出（使用項目符號）')" class="fmt-btn active-fmt px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-purple-600 text-white border border-purple-600 transition">📋 分點列出</button>
+                                    <button type="button" onclick="toggleFormat(this, '用生動的小故事形式表達')" class="fmt-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-purple-800 border border-purple-300 hover:bg-purple-100 transition">📚 故事形式</button>
+                                    <button type="button" onclick="toggleFormat(this, '用表格作清晰對比')" class="fmt-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-purple-800 border border-purple-300 hover:bg-purple-100 transition">📊 表格對比</button>
+                                    <button type="button" onclick="toggleFormat(this, '一問一答（Q&A）形式')" class="fmt-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-purple-800 border border-purple-300 hover:bg-purple-100 transition">❓ 問答形式</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="gen-rules" class="block font-bold text-purple-950 text-sm sm:text-base mb-1.5">
+                                    📏 字數或特別要求
+                                </label>
+                                <input type="text" id="gen-rules" value="字數約 200 字以內，使用香港繁體中文，避免使用過於艱深的詞語，並加上一個生活中的例子。" class="w-full rounded-xl border-2 border-purple-200 focus:border-purple-500 bg-white px-4 py-2 text-sm sm:text-base outline-none">
+                            </div>
+                        </div>
+
+                        <!-- 生成按鈕 -->
+                        <button onclick="generateMagicPrompt()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 active:scale-[0.99] text-white font-black text-lg py-4 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-sparkles"></i>
+                            <span>生成我的專屬魔法指令！</span>
+                        </button>
+                    </div>
+
+                    <!-- 右側：生成結果與即時測試預覽區 (佔 5 欄) -->
+                    <div class="lg:col-span-5 flex flex-col gap-5">
+                        <div class="bg-gradient-to-b from-slate-800 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl flex flex-col flex-grow">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="inline-flex items-center gap-2 text-amber-300 font-bold text-sm">
+                                    <i class="fa-solid fa-scroll"></i> 你的專屬指令結果
+                                </span>
+                                <span class="text-xs bg-white/10 px-2.5 py-1 rounded-full text-slate-300">可直接複製使用</span>
+                            </div>
+
+                            <!-- 結果顯示框 -->
+                            <textarea id="generated-prompt-output" rows="7" readonly class="w-full bg-slate-950/70 border border-slate-700 rounded-2xl p-4 text-sm sm:text-base text-emerald-300 font-medium leading-relaxed resize-none outline-none flex-grow" placeholder="請在左邊填寫資料，然後點擊「生成我的專屬魔法指令！」按鈕……"></textarea>
+
+                            <!-- 操作按鈕組 -->
+                            <div class="grid grid-cols-2 gap-3 mt-4">
+                                <button id="copy-magic-btn" onclick="copyMagicPrompt()" class="flex items-center justify-center gap-2 bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-4 rounded-xl transition text-sm sm:text-base">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>一鍵複製指令</span>
+                                </button>
+                                <button id="test-magic-btn" onclick="testMagicPromptWithAI()" class="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black py-3 px-4 rounded-xl shadow-md transition text-sm sm:text-base">
+                                    <i class="fa-solid fa-play"></i>
+                                    <span>即時測試效果</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AI 即時預覽視窗 (點擊測試後顯示) -->
+                        <div id="magic-test-panel" class="hidden bg-white border-2 border-amber-300 rounded-3xl p-5 shadow-md animate-pop">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-bold text-amber-900 flex items-center gap-2 text-sm sm:text-base">
+                                    <i class="fa-solid fa-robot text-amber-600"></i> AI 實際生成效果預覽
+                                </h4>
+                                <button onclick="document.getElementById('magic-test-panel').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 text-sm">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div id="magic-test-loading" class="hidden py-6 text-center">
+                                <div class="inline-block w-8 h-8 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin mb-2"></div>
+                                <p class="text-xs sm:text-sm text-slate-600 font-medium">AI 小助手正在根據你的指令努力創作中……</p>
+                            </div>
+                            <div id="magic-test-output" class="bg-amber-50/50 rounded-2xl p-3.5 text-sm text-slate-700 leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto border border-amber-100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 頁尾安全與學習提示 -->
+    <footer class="bg-white border-t border-slate-200/80 py-5 px-4 mt-8">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-slate-500 text-center sm:text-left">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🛡️</span>
+                <span><strong>網絡安全小提醒：</strong>與 AI 對話時，切勿輸入真實姓名、電話、地址或學校名稱等個人私隱資料喔！</span>
+            </div>
+            <div class="text-slate-400 font-medium">
+                香港小學 AI 資訊素養學習平台
+            </div>
+        </div>
+    </footer>
+
+    <!-- 自訂訊息提示框 (取代 alert) -->
+    <div id="toast-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
+        <div id="toast-content" class="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-xl font-bold text-sm sm:text-base flex items-center gap-2.5 border border-white/10">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-message">訊息提示</span>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. 教學區資料與邏輯 (模糊 vs 具體指令對比)
+        // ==========================================
+        const comparisonData = {
+            chinese: {
+                vaguePrompt: "幫我寫一篇作文，關於去海洋公園。",
+                vagueIssues: ["沒有說明年級程度，AI 可能會寫得太深奧或太幼稚", "沒有指定字數與文章體裁（記敘文？遊記？）", "直接叫 AI 代寫全部內容，無法幫助自己學習構思"],
+                vagueResult: "（AI 可能會生成一篇 800 字、充滿艱深成語的中學程度文章，而且直接幫你寫完，老師一眼就會發現不是你自己寫的！）",
+                specificPrompt: "你是一位資深香港小學中文老師（①身份）。請為我構思一篇題為《難忘的海洋公園之旅》的記敘文寫作大綱，並提供 6 個適合形容興奮心情的四字詞語（②任務）。對象是香港小學五年級學生（③對象）。請分『開頭、經過、高潮、結尾』四段列出重點，總字數在 200 字以內（④格式限制）。",
+                specificBenefits: ["清楚設定中文老師身份與小五程度", "請 AI 提供「大綱與詞語」輔助思考，做學習的主人", "指定四段結構與字數限制，內容清晰實用"]
+            },
+            science: {
+                vaguePrompt: "什麼是溫室效應？",
+                vagueIssues: ["範圍太廣泛，AI 可能會列出大量複雜的化學方程式", "沒有要求舉例，高小學生看文字容易覺得沉悶"],
+                vagueResult: "（AI 回覆：「溫室效應是指行星的大氣層因為吸收紅外線輻射而使表面溫度升高的現象，主要溫室氣體包括二氧化碳、甲烷、一氧化二氮……」——太深奧啦！）",
+                specificPrompt: "你是一位幽默風趣的科學館導賞員（①身份）。請用淺白易懂的方式解釋什麼是『溫室效應』以及它對香港天氣的影響（②任務）。對象是小學四年級學生（③對象）。請用 150 字以內完成，分 3 點列出，並用『冬天蓋棉被』作生活比喻（④格式限制）。",
+                specificBenefits: ["指定導賞員身份與生活比喻，概念一聽就明", "結合香港天氣情境，學習更貼近生活", "150 字分點呈現，重點一目了然"]
+            },
+            coding: {
+                vaguePrompt: "教我用 Scratch 整一個捉迷藏遊戲。",
+                vagueIssues: ["沒有說明遊戲規則，AI 不知道角色要怎麼移動或計分", "一次過給太多程式碼積木，初學者容易混亂"],
+                vagueResult: "（AI 可能會寫出一大堆複雜的變數、廣播訊息與複製體指令，令剛接觸編程的同學無從入手！）",
+                specificPrompt: "你是一位耐心的兒童編程導師（①身份）。請教我如何在 Scratch 中製作一個簡單的『點擊小貓得分』遊戲（②任務）。對象是剛學 Scratch 的小六學生（③對象）。請用步驟 1 至步驟 4 清晰列出所需積木的顏色分類與功能，每步不超過 30 字（④格式限制）。",
+                specificBenefits: ["縮小任務範圍至具體的『點擊得分』功能", "要求標明積木顏色分類，方便在 Scratch 介面尋找", "限制每步字數，步驟清晰易跟隨"]
+            }
+        };
+
+        function selectExample(key) {
+            // 更新按鈕樣式
+            document.querySelectorAll('.ex-btn').forEach(btn => {
+                if (btn.dataset.ex === key) {
+                    btn.className = 'ex-btn px-4 py-2.5 rounded-2xl font-bold text-sm bg-amber-500 text-white shadow-sm transition';
+                } else {
+                    btn.className = 'ex-btn px-4 py-2.5 rounded-2xl font-bold text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+                }
+            });
+
+            const data = comparisonData[key];
+            const display = document.getElementById('example-display');
+            display.innerHTML = `
+                <!-- 左邊：模糊指令 -->
+                <div class="bg-rose-50/70 border-2 border-rose-200 rounded-3xl p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center gap-1.5 bg-rose-500 text-white font-bold px-3 py-1 rounded-full text-xs sm:text-sm">
+                                <i class="fa-solid fa-circle-xmark"></i> 模糊指令（NG 示範）
+                            </span>
+                            <span class="text-2xl">😵‍💫</span>
+                        </div>
+                        <div class="bg-white border border-rose-200 rounded-2xl p-4 font-bold text-slate-800 text-base mb-4 shadow-xs">
+                            「${data.vaguePrompt}」
+                        </div>
+                        <h4 class="font-bold text-rose-900 text-sm mb-2">為什麼這樣問不好？</h4>
+                        <ul class="space-y-1.5 text-sm text-rose-800 mb-4">
+                            ${data.vagueIssues.map(issue => `<li class="flex items-start gap-2"><span class="text-rose-500 font-bold">•</span><span>${issue}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="bg-rose-100/80 rounded-2xl p-3.5 text-xs sm:text-sm text-rose-950 border border-rose-200">
+                        <strong>🤖 AI 反應：</strong>${data.vagueResult}
+                    </div>
+                </div>
+
+                <!-- 右邊：具體指令 -->
+                <div class="bg-emerald-50/70 border-2 border-emerald-300 rounded-3xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="inline-flex items-center gap-1.5 bg-emerald-600 text-white font-bold px-3 py-1 rounded-full text-xs sm:text-sm">
+                                <i class="fa-solid fa-circle-check"></i> 具體指令（達人示範）
+                            </span>
+                            <span class="text-2xl">🌟</span>
+                        </div>
+                        <div class="bg-white border border-emerald-200 rounded-2xl p-4 font-medium text-slate-800 text-sm sm:text-base leading-relaxed mb-4 shadow-xs">
+                            「${data.specificPrompt}」
+                        </div>
+                        <h4 class="font-bold text-emerald-900 text-sm mb-2">達人指令厲害在哪裡？</h4>
+                        <ul class="space-y-1.5 text-sm text-emerald-800">
+                            ${data.specificBenefits.map(ben => `<li class="flex items-start gap-2"><i class="fa-solid fa-check text-emerald-600 mt-1"></i><span>${ben}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="mt-4 bg-emerald-600 text-white rounded-2xl p-3 text-xs sm:text-sm font-bold text-center">
+                        ✨ 集齊「身份 + 任務 + 對象 + 格式」，AI 立刻變身神隊友！
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // 2. 分頁切換邏輯
+        // ==========================================
+        function switchTab(tabName) {
+            const tabs = ['guide', 'clinic', 'generator'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`section-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    sec.classList.remove('hidden');
+                    btn.classList.add('active');
+                    if (t === 'guide') {
+                        btn.className = 'tab-btn active flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2.5 py-3 px-2 sm:px-5 rounded-2xl font-bold text-sm sm:text-base md:text-lg bg-sky-500 text-white';
+                    } else if (t === 'clinic') {
+                        btn.className = 'tab-btn active flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2.5 py-3 px-2 sm:px-5 rounded-2xl font-bold text-sm sm:text-base md:text-lg bg-emerald-600 text-white';
+                    } else if (t === 'generator') {
+                        btn.className = 'tab-btn active flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2.5 py-3 px-2 sm:px-5 rounded-2xl font-bold text-sm sm:text-base md:text-lg bg-purple-600 text-white';
+                    }
+                } else {
+                    sec.classList.add('hidden');
+                    btn.className = 'tab-btn flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2.5 py-3 px-2 sm:px-5 rounded-2xl font-bold text-sm sm:text-base md:text-lg text-slate-600 hover:bg-slate-100';
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. 指令診斷室資料與 Gemini API 智能評分
+        // ==========================================
+        const missions = [
+            {
+                title: "關卡 1：請 AI 幫忙構思作文大綱",
+                desc: "情境：下星期中文課要寫一篇題為《一次難忘的香港離島之旅》的記敘文，你想請 AI 幫你構思段落大綱。試著寫出包含「身份、目標、對象、格式」的指令吧！",
+                weakSample: "幫我寫一篇去長洲玩的作文大綱。",
+                defaultRef: "你是一位資深香港小學中文老師。請為我構思一篇題為《一次難忘的香港離島之旅》的記敘文寫作大綱，對象是香港小學五年級學生。請分『開頭、經過、高潮、結尾』四段列出寫作重點，總字數在 200 字以內，語氣要親切鼓勵。"
+            },
+            {
+                title: "關卡 2：解釋科學原理",
+                desc: "情境：常識課學到「為什麼船那麼重卻能浮在水面上？（浮力原理）」，你想請 AI 用小學生聽得懂的方式解釋給你聽。",
+                weakSample: "為什麼船會浮在水上？",
+                defaultRef: "你是一位幽默風趣的科學館導賞員。請用淺白易懂的方式解釋『為什麼大輪船能浮在水面上』的科學原理，對象是香港小學四年級學生。請用 150 字以內、分 3 點列出，並舉一個日常生活中能看到的小例子。"
+            },
+            {
+                title: "關卡 3：設計環保海報標語",
+                desc: "情境：學校即將舉辦「校園減廢環保週」，你需要為班級海報創作幾句朗朗上口、有創意的繁體中文宣傳標語。",
+                weakSample: "給我一些環保標語。",
+                defaultRef: "你是一位充滿創意的環保宣傳設計師。請為香港小學的『校園減廢環保週』創作 5 句海報宣傳標語，對象是全校小一至小六學生。要求每句標語不超過 12 個字、押韻且朗朗上口，並附上一句簡短的設計插圖建議。"
+            },
+            {
+                title: "自由挑戰題：自訂任何學習任務",
+                desc: "情境：發揮你的創意！你可以向 AI 詢問任何學習問題（例如：學英文生字、規劃溫習時間表、構思 Scratch 遊戲等），記得用上「黃金四要素」喔！",
+                weakSample: "幫我溫習英文。",
+                defaultRef: "你是一位耐心的香港小學英文老師。請為我設計一個為期 5 天的英文生字溫習計劃，主題是『健康飲食』，對象是小學六年級學生。請用表格形式列出每天的學習任務，每天只需 15 分鐘，內容要輕鬆有趣。"
+            }
+        ];
+
+        let currentMissionIdx = 0;
+
+        function selectMission(idx) {
+            currentMissionIdx = idx;
+            document.querySelectorAll('.mission-btn').forEach((btn, i) => {
+                const badge = btn.querySelector('span:first-child');
+                if (i === idx) {
+                    btn.className = 'mission-btn p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-bold text-left transition flex flex-col gap-1 shadow-xs';
+                    badge.className = 'text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full w-fit';
+                } else {
+                    btn.className = 'mission-btn p-3.5 rounded-2xl border-2 border-slate-200 bg-white text-slate-600 hover:border-emerald-300 font-bold text-left transition flex flex-col gap-1';
+                    badge.className = i === 3 ? 'text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full w-fit' : 'text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full w-fit';
+                }
+            });
+
+            document.getElementById('mission-title').textContent = missions[idx].title;
+            document.getElementById('mission-desc').textContent = missions[idx].desc;
+            document.getElementById('diagnosis-result').classList.add('hidden');
+        }
+
+        function fillWeakExample() {
+            document.getElementById('student-prompt-input').value = missions[currentMissionIdx].weakSample;
+            showToast('已填入簡短指令範例，點擊「診斷我的指令」看看會發生什麼事！', 'info');
+        }
+
+        function clearClinic() {
+            document.getElementById('student-prompt-input').value = '';
+            document.getElementById('diagnosis-result').classList.add('hidden');
+        }
+
+        // 呼叫 Gemini API 的通用函式（含指數退避重試機制）
+        async function callGeminiAPI(payload) {
+            const apiKey = ""; // 執行環境會自動注入 API Key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const delays = [1000, 2000, 4000];
+
+            for (let attempt = 0; attempt <= delays.length; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (err) {
+                    if (attempt === delays.length) {
+                        throw err;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delays[attempt]));
+                }
+            }
+        }
+
+        // 本地規則備援評估（若離線或 API 異常時使用，確保課堂教學永不中斷）
+        function fallbackRuleDiagnosis(promptText, mission) {
+            const hasRole = /(你是|扮演|作為|老師|博士|導師|專家|導賞員|作家|設計師)/.test(promptText);
+            const hasTask = promptText.trim().length >= 8;
+            const hasAudience = /(對象|學生|小一|小二|小三|小四|小五|小六|小學|兒童|小朋友|同學|家長)/.test(promptText);
+            const hasFormat = /(字|分點|列出|段|表格|例子|舉例|步驟|押韻|繁體|語氣|生動|淺白)/.test(promptText);
+
+            let score = 25;
+            if (hasTask) score += 20;
+            if (hasRole) score += 20;
+            if (hasAudience) score += 15;
+            if (hasFormat) score += 20;
+            if (promptText.length < 10) score = Math.min(score, 35);
+
+            const missing = [];
+            if (!hasRole) missing.push("AI 身份（例如：你是一位小學老師）");
+            if (!hasAudience) missing.push("目標對象（例如：對象是小五學生）");
+            if (!hasFormat) missing.push("格式與限制（例如：分點列出、150字以內）");
+
+            return {
+                score: score,
+                hasRole: hasRole,
+                hasTask: hasTask,
+                hasAudience: hasAudience,
+                hasFormat: hasFormat,
+                encouragement: score >= 80 ? "太厲害了！你已經掌握了與 AI 溝通的黃金法則！" : "很好的開始！只要再補充幾個小細節，你的指令就會變得無敵清晰！",
+                strengths: hasTask ? "你清楚說出了希望 AI 幫忙完成的任務方向，讓 AI 知道該做什麼。" : "你勇敢踏出了第一步，嘗試向 AI 發出指令！",
+                improvements: missing.length > 0 ? `建議可以加入：${missing.join("、")}，這樣 AI 回答時會更貼合你的需要喔！` : "你的四要素非常齊全！可以試著在結尾加上對語氣的要求，讓回覆更生動。",
+                simulatedReply: score >= 75 
+                    ? `你好！我很樂意為你服務。\n根據你的要求，我為你整理了以下清晰重點：\n1. 重點一：緊扣主題，內容淺白易懂。\n2. 重點二：加入生動的生活例子幫助理解。\n3. 重點三：結構整齊，方便你直接參考學習！`
+                    : `好的，關於你提到的問題，這是一個很廣泛的主題。因為你沒有說明年級和字數要求，我先提供一段比較長且包含較多專業術語的介紹……（提示：如果指令再具體一點，我就能答得更準確喔！）`,
+                referencePrompt: mission.defaultRef
+            };
+        }
+
+        async function diagnosePrompt() {
+            const input = document.getElementById('student-prompt-input').value.trim();
+            if (!input) {
+                showToast('請先在輸入框寫下你的文字指令喔！', 'warning');
+                document.getElementById('student-prompt-input').focus();
+                return;
+            }
+
+            const resultBox = document.getElementById('diagnosis-result');
+            const loadingBox = document.getElementById('diagnosis-loading');
+            const contentBox = document.getElementById('diagnosis-content');
+            const btn = document.getElementById('diagnose-btn');
+
+            resultBox.classList.remove('hidden');
+            loadingBox.classList.remove('hidden');
+            contentBox.classList.add('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
+
+            // 滾動到結果區
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            const currentMission = missions[currentMissionIdx];
+            const systemPrompt = `你是一位親切、充滿愛心與鼓勵性的香港小學資訊科技與中文科老師。
+你的任務是評估香港高小學生（9-12歲）撰寫的 AI 文字指令（Prompt）是否具體清晰。
+請根據「黃金四要素」進行診斷：
+1. hasRole (AI 身份)：是否有設定 AI 扮演的角色或專家身份？
+2. hasTask (任務目標)：是否清晰說明要 AI 做什麼具體事情？
+3. hasAudience (目標對象)：是否有說明內容是給誰看的（如年級、對象）？
+4. hasFormat (格式與限制)：是否有規定字數、分點、段落、舉例或語氣等要求？
+
+請務必使用地道、友善的香港繁體中文回覆，語氣要鼓勵小學生。
+此外，請在 simulatedReply 欄位中，真實模擬「如果 AI 收到該學生這段指令，會給出怎樣的簡短回覆（約80-120字）」——如果學生的指令很模糊，模擬回覆就要反映出「因為指令不夠具體而答得太泛或太深」；如果指令很具體，模擬回覆就要展現出「精彩、貼合小學生的優質回答」！`;
+
+            const userQuery = `當前任務關卡：${currentMission.title}（${currentMission.desc}）
+學生輸入的文字指令：「${input}」
+請評估這段指令並回傳 JSON 格式診斷結果。`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            score: { type: "INTEGER", description: "0到100的整數分數" },
+                            hasRole: { type: "BOOLEAN" },
+                            hasTask: { type: "BOOLEAN" },
+                            hasAudience: { type: "BOOLEAN" },
+                            hasFormat: { type: "BOOLEAN" },
+                            encouragement: { type: "STRING", description: "一句簡短鼓勵評語" },
+                            strengths: { type: "STRING", description: "具體指出學生指令做得好的地方" },
+                            improvements: { type: "STRING", description: "具體且友善的改善建議" },
+                            simulatedReply: { type: "STRING", description: "模擬AI收到該指令後的簡短回覆效果" },
+                            referencePrompt: { type: "STRING", description: "針對此任務的滿分參考指令示範" }
+                        },
+                        required: ["score", "hasRole", "hasTask", "hasAudience", "hasFormat", "encouragement", "strengths", "improvements", "simulatedReply", "referencePrompt"]
+                    }
+                }
+            };
+
+            let diagData;
+            try {
+                const apiResult = await callGeminiAPI(payload);
+                const rawText = apiResult?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (rawText) {
+                    diagData = JSON.parse(rawText);
+                } else {
+                    diagData = fallbackRuleDiagnosis(input, currentMission);
+                }
+            } catch (error) {
+                diagData = fallbackRuleDiagnosis(input, currentMission);
+            }
+
+            renderDiagnosis(diagData);
+            loadingBox.classList.add('hidden');
+            contentBox.classList.remove('hidden');
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+        }
+
+        function renderDiagnosis(data) {
+            // 分數與星級
+            const score = Math.max(0, Math.min(100, data.score));
+            document.getElementById('score-number').textContent = score;
+            
+            const badge = document.getElementById('score-badge');
+            let stars = '★☆☆☆☆';
+            let titleText = '繼續加油！指令還可以更具體喔！';
+
+            if (score >= 90) {
+                badge.className = 'w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex flex-col items-center justify-center shadow-lg flex-shrink-0';
+                stars = '★★★★★';
+                titleText = '滿分級指令小達人！太出色了！';
+            } else if (score >= 75) {
+                badge.className = 'w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex flex-col items-center justify-center shadow-lg flex-shrink-0';
+                stars = '★★★★☆';
+                titleText = '表現很棒！指令相當清晰！';
+            } else if (score >= 50) {
+                badge.className = 'w-24 h-24 rounded-3xl bg-gradient-to-br from-sky-400 to-blue-600 text-white flex flex-col items-center justify-center shadow-lg flex-shrink-0';
+                stars = '★★★☆☆';
+                titleText = '不錯的嘗試！再加點細節就更完美！';
+            } else {
+                badge.className = 'w-24 h-24 rounded-3xl bg-gradient-to-br from-rose-400 to-pink-600 text-white flex flex-col items-center justify-center shadow-lg flex-shrink-0';
+                stars = '★★☆☆☆';
+                titleText = '指令有點太簡短囉，AI 可能會猜錯意思！';
+            }
+
+            document.getElementById('star-rating').textContent = stars;
+            document.getElementById('score-title').textContent = titleText;
+            document.getElementById('score-encouragement').textContent = data.encouragement;
+
+            // 四要素檢測卡片
+            const elements = [
+                { label: '① AI 身份', ok: data.hasRole },
+                { label: '② 任務目標', ok: data.hasTask },
+                { label: '③ 目標對象', ok: data.hasAudience },
+                { label: '④ 格式與限制', ok: data.hasFormat }
+            ];
+
+            document.getElementById('elements-checklist').innerHTML = elements.map(el => `
+                <div class="p-3 rounded-2xl border ${el.ok ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-500'} flex items-center justify-between">
+                    <span class="font-bold text-xs sm:text-sm">${el.label}</span>
+                    ${el.ok 
+                        ? '<span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></span>' 
+                        : '<span class="w-6 h-6 rounded-full bg-slate-300 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-minus"></i></span>'}
+                </div>
+            `).join('');
+
+            document.getElementById('diag-strengths').textContent = data.strengths;
+            document.getElementById('diag-improvements').textContent = data.improvements;
+            document.getElementById('ai-simulated-reply').textContent = data.simulatedReply;
+            document.getElementById('reference-perfect-prompt').textContent = data.referencePrompt;
+        }
+
+        function copyReferencePrompt() {
+            const text = document.getElementById('reference-perfect-prompt').textContent;
+            copyTextToClipboard(text, '已複製參考滿分指令！');
+        }
+
+        // ==========================================
+        // 4. 魔法指令生成器邏輯
+        // ==========================================
+        let selectedFormats = ['分點清晰列出（使用項目符號）'];
+
+        function setGenInput(elementId, value) {
+            const el = document.getElementById(elementId);
+            el.value = value;
+            el.classList.add('ring-4', 'ring-amber-300/50');
+            setTimeout(() => el.classList.remove('ring-4', 'ring-amber-300/50'), 400);
+        }
+
+        function toggleFormat(btn, formatText) {
+            const index = selectedFormats.indexOf(formatText);
+            if (index > -1) {
+                selectedFormats.splice(index, 1);
+                btn.className = 'fmt-btn px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-purple-800 border border-purple-300 hover:bg-purple-100 transition';
+            } else {
+                selectedFormats.push(formatText);
+                btn.className = 'fmt-btn active-fmt px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-purple-600 text-white border border-purple-600 transition';
+            }
+        }
+
+        function generateMagicPrompt() {
+            const task = document.getElementById('gen-task').value.trim();
+            if (!task) {
+                showToast('請先填寫「② 任務目標」喔！（或點選上方的靈感快選）', 'warning');
+                document.getElementById('gen-task').focus();
+                return;
+            }
+
+            const role = document.getElementById('gen-role').value.trim();
+            const audience = document.getElementById('gen-audience').value;
+            const tone = document.getElementById('gen-tone').value;
+            const rules = document.getElementById('gen-rules').value.trim();
+
+            let parts = [];
+            if (role) {
+                parts.push(`你是一位${role}。`);
+            }
+            parts.push(`請幫我${task}。`);
+            if (audience) {
+                parts.push(`這份內容的目標對象是${audience}。`);
+            }
+            if (selectedFormats.length > 0) {
+                parts.push(`在排版方面，請${selectedFormats.join('，並')}。`);
+            }
+            if (tone) {
+                parts.push(`請使用${tone}的語氣撰寫。`);
+            }
+            if (rules) {
+                parts.push(`特別要求：${rules}`);
+            }
+
+            const finalPrompt = parts.join('');
+            const outputBox = document.getElementById('generated-prompt-output');
+            outputBox.value = finalPrompt;
+            
+            showToast('✨ 專屬魔法指令生成成功！', 'success');
+        }
+
+        function copyMagicPrompt() {
+            const text = document.getElementById('generated-prompt-output').value.trim();
+            if (!text) {
+                showToast('請先點擊「生成我的專屬魔法指令！」按鈕喔！', 'warning');
+                return;
+            }
+            copyTextToClipboard(text, '📋 指令已複製到剪貼簿！快去貼上試試吧！');
+        }
+
+        async function testMagicPromptWithAI() {
+            const promptText = document.getElementById('generated-prompt-output').value.trim();
+            if (!promptText) {
+                showToast('請先生成指令，再按「即時測試效果」喔！', 'warning');
+                return;
+            }
+
+            const panel = document.getElementById('magic-test-panel');
+            const loading = document.getElementById('magic-test-loading');
+            const output = document.getElementById('magic-test-output');
+            const btn = document.getElementById('test-magic-btn');
+
+            panel.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            output.classList.add('hidden');
+            btn.disabled = true;
+
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                systemInstruction: {
+                    parts: [{ text: "你是一個安全、友善、專為香港小學生設計的學習輔助 AI。請嚴格遵守使用者的指令要求（身份、對象、字數與格式），使用香港繁體中文作答。" }]
+                }
+            };
+
+            try {
+                const res = await callGeminiAPI(payload);
+                const reply = res?.candidates?.[0]?.content?.parts?.[0]?.text;
+                output.textContent = reply || "AI 小助手暫時未能回應，請稍後再試一次！";
+            } catch (err) {
+                output.textContent = "目前網絡連線有點忙碌，不過你的指令格式非常棒！你可以直接複製指令貼到其他 AI 工具中使用喔！";
+            }
+
+            loading.classList.add('hidden');
+            output.classList.remove('hidden');
+            btn.disabled = false;
+        }
+
+        // ==========================================
+        // 5. 通用工具函式 (安全複製與 Toast 提示)
+        // ==========================================
+        function copyTextToClipboard(text, successMsg) {
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = text;
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.left = '-9999px';
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg, 'success');
+            } catch (err) {
+                showToast('複製失敗，請手動選取文字複製', 'warning');
+            }
+            document.body.removeChild(tempTextarea);
+        }
+
+        let toastTimer;
+        function showToast(message, type = 'success') {
+            const box = document.getElementById('toast-box');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            if (type === 'warning') {
+                iconEl.className = 'fa-solid fa-circle-exclamation text-amber-400';
+            } else if (type === 'info') {
+                iconEl.className = 'fa-solid fa-lightbulb text-sky-400';
+            } else {
+                iconEl.className = 'fa-solid fa-circle-check text-emerald-400';
+            }
+
+            box.classList.remove('opacity-0', 'translate-y-4');
+            box.classList.add('opacity-100', 'translate-y-0');
+
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                box.classList.remove('opacity-100', 'translate-y-0');
+                box.classList.add('opacity-0', 'translate-y-4');
+            }, 3000);
+        }
+
+        // 頁面載入初始化
+        window.onload = function() {
+            selectExample('chinese');
+        };
+    </script>
+</body>
+</html>
